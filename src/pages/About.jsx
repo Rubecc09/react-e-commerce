@@ -10,7 +10,7 @@ const About = () => {
           />
         </div>
         <div className="col-md-6">
-          <h2 className="fw-bold">About Our Kiwi</h2>
+          <h2 className="fw-bold">About Kiwi</h2>
           <p className="text-muted mt-3">
             Welcome to Kiwi, your one-stop shop for everything you need. From
             electronics to fashion, accessories and beyond, we bring it all together
