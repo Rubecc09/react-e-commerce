@@ -4,7 +4,7 @@ const About = () => {
       <div className="row align-items-center">
         <div className="col-md-6">
           <img
-            src="/src/assets/images/about.jpg"
+            src="/about.jpg"
             className="img-fluid rounded shadow"
             alt="About Us"
           />
