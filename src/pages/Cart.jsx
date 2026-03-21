@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity } = useCart();
   const [selectedItems, setSelectedItems] = useState(new Set());
+  const navigate = useNavigate();
 
+  // Remove deselected items if they get removed from cart
   useEffect(() => {
     const cartIds = new Set(cart.map((item) => item.id));
     const newSelected = new Set(
@@ -24,14 +26,20 @@ const Cart = () => {
     setSelectedItems(newSelected);
   };
 
-  const selectedTotal = cart
-    .filter((item) => selectedItems.has(item.id))
+  const selectedCartItems = cart.filter((item) => selectedItems.has(item.id));
+
+  const selectedTotal = selectedCartItems
     .reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  const handleCheckout = () => {
+    // Pass ONLY the selected items to Checkout via router state
+    navigate('/checkout', { state: { selectedItems: selectedCartItems } });
+  };
 
   return (
     <div className="container mt-5">
       <h2 className="mb-4">Shopping Cart</h2>
-      
+
       {cart.length === 0 ? (
         <p className="text-center">Your cart is empty.</p>
       ) : (
@@ -55,17 +63,17 @@ const Cart = () => {
               <div className="flex-grow-1">
                 <h5>{item.name}</h5>
                 <p className="text-muted mb-1">₱{item.price}</p>
-                
+
                 <div className="d-flex align-items-center mt-2">
-                  <button 
-                    className="btn btn-outline-secondary btn-sm" 
+                  <button
+                    className="btn btn-outline-secondary btn-sm"
                     onClick={() => updateQuantity(item.id, -1)}
                   >
                     -
                   </button>
                   <span className="mx-3 fw-bold">{item.quantity}</span>
-                  <button 
-                    className="btn btn-outline-secondary btn-sm" 
+                  <button
+                    className="btn btn-outline-secondary btn-sm"
                     onClick={() => updateQuantity(item.id, 1)}
                   >
                     +
@@ -74,8 +82,8 @@ const Cart = () => {
               </div>
 
               <div className="text-end ms-3">
-                <button 
-                  className="btn btn-danger btn-sm" 
+                <button
+                  className="btn btn-danger btn-sm"
                   onClick={() => removeFromCart(item.id)}
                 >
                   <i className="fas fa-trash me-1"></i> Remove
@@ -84,20 +92,19 @@ const Cart = () => {
             </div>
           ))}
 
-          {/* Total & Checkout Button */}
+          {/* Total & Checkout */}
           <div className="mt-4 text-end">
             <h4>
               Selected Total: <span className="text-danger">₱{selectedTotal.toFixed(2)}</span>
             </h4>
-            
-            {/* Checkout Button - navigates to /checkout */}
-            <Link 
-              to="/checkout" 
-              className={`btn btn-success mt-2 ${selectedItems.size === 0 ? 'disabled' : ''}`}
-              style={{ textDecoration: 'none' }}
+
+            <button
+              className="btn btn-success mt-2"
+              disabled={selectedItems.size === 0}
+              onClick={handleCheckout}
             >
               Proceed to Checkout ({selectedItems.size})
-            </Link>
+            </button>
           </div>
         </>
       )}

@@ -1,8 +1,14 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const Checkout = () => {
-  const { cart, clearCart } = useCart();
+  const { clearCart } = useCart();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get only the selected items passed from Cart.jsx
+  const selectedItems = location.state?.selectedItems || [];
 
   const [form, setForm] = useState({
     name: '',
@@ -15,8 +21,7 @@ const Checkout = () => {
   const [submitted, setSubmitted] = useState(false);
   const [finalTotal, setFinalTotal] = useState(0);
 
-  
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tax = subtotal * 0.12;
   const total = subtotal + tax;
 
@@ -37,6 +42,18 @@ const Checkout = () => {
     setSubmitted(true);
   };
 
+  // Redirect if someone navigates to /checkout directly with no items
+  if (selectedItems.length === 0 && !submitted) {
+    return (
+      <div className="container mt-5 text-center">
+        <h4>No items selected for checkout.</h4>
+        <button className="btn btn-primary mt-3" onClick={() => navigate('/cart')}>
+          Go back to Cart
+        </button>
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
       <div className="container mt-5 text-center">
@@ -52,7 +69,7 @@ const Checkout = () => {
     <div className="container mt-4">
       <h2>Checkout</h2>
       <div className="row">
-        
+
         {/* Checkout Form */}
         <div className="col-md-6">
           <h4>Customer Information</h4>
@@ -85,34 +102,28 @@ const Checkout = () => {
           </form>
         </div>
 
-        {/* Order Summary */}
+        {/* Order Summary — only selected items */}
         <div className="col-md-6">
           <h4>Order Summary</h4>
-          {cart.length === 0 ? (
-            <p className="text-muted">Your cart is empty.</p>
-          ) : (
-            <>
-              {cart.map(item => (
-                <div key={item.id} className="d-flex justify-content-between border-bottom py-2">
-                  <span>{item.name} × {item.quantity}</span>
-                  <span>₱{(item.price * item.quantity).toFixed(2)}</span>
-                </div>
-              ))}
-              <hr />
-              <div className="d-flex justify-content-between">
-                <span>Subtotal:</span>
-                <span>₱{subtotal.toFixed(2)}</span>
-              </div>
-              <div className="d-flex justify-content-between">
-                <span>Tax (12%):</span>
-                <span>₱{tax.toFixed(2)}</span>
-              </div>
-              <h5 className="d-flex justify-content-between mt-3">
-                <span>Total:</span>
-                <span>₱{total.toFixed(2)}</span>
-              </h5>
-            </>
-          )}
+          {selectedItems.map(item => (
+            <div key={item.id} className="d-flex justify-content-between border-bottom py-2">
+              <span>{item.name} × {item.quantity}</span>
+              <span>₱{(item.price * item.quantity).toFixed(2)}</span>
+            </div>
+          ))}
+          <hr />
+          <div className="d-flex justify-content-between">
+            <span>Subtotal:</span>
+            <span>₱{subtotal.toFixed(2)}</span>
+          </div>
+          <div className="d-flex justify-content-between">
+            <span>Tax (12%):</span>
+            <span>₱{tax.toFixed(2)}</span>
+          </div>
+          <h5 className="d-flex justify-content-between mt-3">
+            <span>Total:</span>
+            <span>₱{total.toFixed(2)}</span>
+          </h5>
         </div>
 
       </div>
