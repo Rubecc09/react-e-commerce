@@ -32,7 +32,7 @@ const Cart = () => {
     .reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handleCheckout = () => {
-    // Pass ONLY the selected items to Checkout via router state
+    console.log("Passing to checkout:", selectedCartItems); // Debug log
     navigate('/checkout', { state: { selectedItems: selectedCartItems } });
   };
 
